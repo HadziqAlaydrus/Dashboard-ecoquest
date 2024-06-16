@@ -13,7 +13,7 @@ const CardDashboard = () => {
         const response = await axios.get("https://backend-ecoquest.vercel.app/pickup");
         const updatedData = response.data.map((item) => ({
           ...item,
-          status: "Belum Diambil",
+          status: item.status || "Belum Diambil",
         }));
         setData(updatedData);
       } catch (error) {
@@ -26,44 +26,63 @@ const CardDashboard = () => {
   const judul = [
     {
       title: "Nama Client",
-      width: "1/5",
+      
     },
     {
       title: "Total Berat Sampah",
-      width: "1/5",
+      
     },
     {
       title: "Tanggal Pengambilan Sampah",
-      width: "1/5",
+      
     },
     {
       title: "Waktu Pengambilan Sampah",
-      width: "1/5",
+    
     },
     {
       title: "Status",
-      width: "1/5",
+    
     },
   ];
 
-  const toggleStatus = (id) => {
-    const updateData = data.map((item) => {
-      if (item.id === id) {
-        return {
-          ...item,
-          status:
-            item.status === "Belum Diambil" ? "Sudah Diambil" : "Belum Diambil",
-        };
+  const toggleStatus = async (id) => {
+    const item = data.find((item) => item.id === id);
+    if (!item) return;
+
+    const newStatus = item.status === "Belum Diambil" ? "Sudah Diambil" : "Belum Diambil";
+
+    try {
+      console.log(`Updating status for ID: ${id} to ${newStatus}`);
+      const response = await axios.patch(
+        `https://backend-ecoquest.vercel.app/pickup/${id}/status`,
+        { status: newStatus },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      console.log('Response:', response);
+
+      if (response.status === 200) {
+        setData((prevData) =>
+          prevData.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
+        );
+      } else {
+        console.error("Failed to update status", response.data);
       }
-      return item;
-    });
-    setData(updateData);
+    } catch (error) {
+      if (error.response) {
+        console.error("Error updating status", error.response.data);
+      } else {
+        console.error("Error updating status", error.message);
+      }
+    }
   };
+
+  
 
   const handleCheckboxChange = (id) => {
     setSelectedIds((prevSelectedIds) =>
       prevSelectedIds.includes(id)
-        ? prevSelectedIds.filter((item.id) = itemid !== id)
+        ? prevSelectedIds.filter((itemid) => itemid !== id)
         : [...prevSelectedIds, id]
     );
   };
@@ -85,11 +104,12 @@ const CardDashboard = () => {
   return (
     <section className="max-w-screen p-14 bg-gradient-to-tl from-cyan-800 via-teal-500 to-lime-500 pt-20">
       <div>
-        <h1 className="font-bold text-7xl flex justify-center items-center p-10">
-          DASHBOARD EcoQuest
+        <h1 className="font-bold text-7xl flex justify-center items-center p-5">
+          DASHBOARD
         </h1>
+        <h2 className="font-bold text-7xl flex justify-center items-center mb-5">EcoQuest</h2>
         <div className="bg-gray-300 h-fit rounded-lg p-20">
-          <div className="grid grid-cols-5 gap-16 border border-black ">
+          <div className="flex  gap-16  justify-center items-center border border-black ">
             {judul.map((item, index) => (
               <div key={index} className="p-1 mb-2">
                 <h2>{item.title}</h2>
@@ -99,18 +119,18 @@ const CardDashboard = () => {
           {data.map((item) => (
             <div
               key={item.id}
-              className="grid grid-cols-6 gap-10 border p-1 mt-1 border-black"
+              className="grid grid-cols-6 justify-center items-center border p-1 mt-1  border-black"
             >
               <input
                 type="checkbox"
-                className=""
+                className="w-28 h-4 rounded-lg "
                 checked={selectedIds.includes(item.id)}
                 onChange={() => handleCheckboxChange(item.id)}
               />
-              <p className="py-5">{item.nama}</p>
-              <p className="ml-14 py-5">{item.berat_sampah}</p>
-              <p className="ml-16 py-5">{item.tanggal_pengambilan}</p>
-              <p className="ml-20 py-5">{item.waktu_pengambilan}</p>
+              <p className="w-1 -ml-16 py-2">{item.nama}</p>
+              <p className="-ml-16 py-5">{item.berat_sampah}</p>
+              <p className="-ml-16 py-5">{item.tanggal_pengambilan}</p>
+              <p className="ml-10 py-5">{item.waktu_pengambilan}</p>
               <button
                 onClick={() => toggleStatus(item.id)}
                 className={`rounded-full px-2 py-1.5 mb-5 mt-5 w-fit cursor-pointer ${
