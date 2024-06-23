@@ -10,7 +10,7 @@ const CardDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("https://backend-ecoquest.vercel.app/pickup");
+        const response = await axios.get("http://3.107.21.244:3000/pickup");
         const updatedData = response.data.map((item) => ({
           ...item,
           status: item.status || "Belum Diambil",
@@ -28,6 +28,7 @@ const CardDashboard = () => {
       title: "Nama Client",
       
     },
+    { title : "Nomor Telp"},
     {
       title: "Total Berat Sampah",
       
@@ -55,7 +56,7 @@ const CardDashboard = () => {
     try {
       console.log(`Updating status for ID: ${id} to ${newStatus}`);
       const response = await axios.patch(
-        `https://backend-ecoquest.vercel.app/pickup/${id}/status`,
+        `http://3.107.21.244:3000/pickup/${id}/status`,
         { status: newStatus },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -91,7 +92,7 @@ const CardDashboard = () => {
     try {
       await Promise.all(
         selectedIds.map((id) =>
-          axios.delete(`https://backend-ecoquest.vercel.app/pickup/${id}`)
+          axios.delete(`http://3.107.21.244:3000/pickup/${id}`)
         )
       );
       setData(data.filter((item) => !selectedIds.includes(item.id)));
@@ -119,7 +120,7 @@ const CardDashboard = () => {
           {data.map((item) => (
             <div
               key={item.id}
-              className="grid grid-cols-6 justify-center items-center border p-1 mt-1  border-black"
+              className="grid grid-cols-7 justify-center items-center border p-1 mt-1  border-black"
             >
               <input
                 type="checkbox"
@@ -127,10 +128,11 @@ const CardDashboard = () => {
                 checked={selectedIds.includes(item.id)}
                 onChange={() => handleCheckboxChange(item.id)}
               />
-              <p className="w-1 -ml-16 py-2">{item.nama}</p>
-              <p className="-ml-16 py-5">{item.berat_sampah}</p>
-              <p className="-ml-16 py-5">{item.tanggal_pengambilan}</p>
-              <p className="ml-10 py-5">{item.waktu_pengambilan}</p>
+              <p className="w-1 -ml-24 py-2">{item.nama}</p>
+              <p className="-ml-32 py-2">{item.no_telp}</p>
+              <p className="-ml-36 py-5">{item.berat_sampah}</p>
+              <p className="-ml-20 py-5">{item.tanggal_pengambilan}</p>
+              <p className="ml-14 py-5">{item.waktu_pengambilan}</p>
               <button
                 onClick={() => toggleStatus(item.id)}
                 className={`rounded-full px-2 py-1.5 mb-5 mt-5 w-fit cursor-pointer ${
