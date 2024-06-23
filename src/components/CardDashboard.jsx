@@ -1,7 +1,6 @@
-import React from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import HeaderDashboard from "./HeaderDashboard";
 
 const CardDashboard = () => {
   const [data, setData] = useState([]);
@@ -22,30 +21,6 @@ const CardDashboard = () => {
     };
     fetchData();
   }, []);
-
-  const judul = [
-    {
-      title: "Nama Client",
-      
-    },
-    { title : "Nomor Telp"},
-    {
-      title: "Total Berat Sampah",
-      
-    },
-    {
-      title: "Tanggal Pengambilan Sampah",
-      
-    },
-    {
-      title: "Waktu Pengambilan Sampah",
-    
-    },
-    {
-      title: "Status",
-    
-    },
-  ];
 
   const toggleStatus = async (id) => {
     const item = data.find((item) => item.id === id);
@@ -78,8 +53,6 @@ const CardDashboard = () => {
     }
   };
 
-  
-
   const handleCheckboxChange = (id) => {
     setSelectedIds((prevSelectedIds) =>
       prevSelectedIds.includes(id)
@@ -95,7 +68,9 @@ const CardDashboard = () => {
           axios.delete(`http://3.107.21.244:3000/pickup/${id}`)
         )
       );
-      setData(data.filter((item) => !selectedIds.includes(item.id)));
+      setData((prevData) =>
+        prevData.filter((item) => !selectedIds.includes(item.id))
+      );
       setSelectedIds([]);
     } catch (error) {
       console.error("Error deleting selected items", error);
@@ -103,52 +78,11 @@ const CardDashboard = () => {
   };
 
   return (
-    <section className="max-w-screen p-14 bg-gradient-to-tl from-cyan-800 via-teal-500 to-lime-500 pt-20">
+    <section className="max-w-screen bg-slate-100">
       <div>
-        <h1 className="font-bold text-7xl flex justify-center items-center p-5">
-          DASHBOARD
-        </h1>
-        <h2 className="font-bold text-7xl flex justify-center items-center mb-5">EcoQuest</h2>
-        <div className="bg-gray-300 h-fit rounded-lg p-20">
-          <div className="flex  gap-16  justify-center items-center border border-black ">
-            {judul.map((item, index) => (
-              <div key={index} className="p-1 mb-2">
-                <h2>{item.title}</h2>
-              </div>
-            ))}
-          </div>
-          {data.map((item) => (
-            <div
-              key={item.id}
-              className="grid grid-cols-7 justify-center items-center border p-1 mt-1  border-black"
-            >
-              <input
-                type="checkbox"
-                className="w-28 h-4 rounded-lg "
-                checked={selectedIds.includes(item.id)}
-                onChange={() => handleCheckboxChange(item.id)}
-              />
-              <p className="w-1 -ml-24 py-2">{item.nama}</p>
-              <p className="-ml-32 py-2">{item.no_telp}</p>
-              <p className="-ml-36 py-5">{item.berat_sampah}</p>
-              <p className="-ml-20 py-5">{item.tanggal_pengambilan}</p>
-              <p className="ml-14 py-5">{item.waktu_pengambilan}</p>
-              <button
-                onClick={() => toggleStatus(item.id)}
-                className={`rounded-full px-2 py-1.5 mb-5 mt-5 w-fit cursor-pointer ${
-                  item.status === "Belum Diambil"
-                    ? "bg-red-500 hover:bg-red-600"
-                    : "bg-green-500 hover:bg-green-600"
-                } text-white transition duration-300 text-sm`}
-                text-white
-                transition
-                duration-300
-              >
-                {item.status}
-              </button>
-            </div>
-          ))}
-          <div className="flex justify-end mt-5">
+        <HeaderDashboard/>
+        <div className="p-14">
+          <div className="flex justify-end mb-5">
             <button
               onClick={handleDeletedSelected}
               className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
@@ -156,9 +90,89 @@ const CardDashboard = () => {
               Delete Data
             </button>
           </div>
+          <SampleTable
+            data={data}
+            selectedIds={selectedIds}
+            toggleStatus={toggleStatus}
+            handleCheckboxChange={handleCheckboxChange}
+          />
         </div>
       </div>
     </section>
+  );
+};
+
+const SampleTable = ({ data, selectedIds, toggleStatus, handleCheckboxChange }) => {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white border-collapse shadow-md rounded-md">
+        <thead>
+          <tr className="bg-gray-200 text-gray-700 text-left border-b-2 border-gray-300">
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Nama Client
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Nomor Telp
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Alamat
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Total Berat Sampah
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Tanggal Pengambilan
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Waktu Pengambilan
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Status
+            </th>
+            <th className="px-6 py-3 whitespace-nowrap font-bold text-sm uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => (
+            <tr key={item.id} className="border-b border-gray-300">
+              <td className="px-6 py-4 whitespace-nowrap">{item.nama}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{item.no_telp}</td>
+              <td className="px-6 py-4 w-56 line-clamp-none text-justify overflow-auto">{item.alamat}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{item.berat_sampah}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{item.tanggal_pengambilan}</td>
+              <td className="px-6 py-4 whitespace-nowrap">{item.waktu_pengambilan}</td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className={`inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium ${
+                  item.status === "Belum Diambil" ? "bg-red-500 text-white" : "bg-green-500 text-white"
+                }`}>
+                  {item.status}
+                </span>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <button
+                  onClick={() => toggleStatus(item.id)}
+                  className={`rounded px-2 py-1 ${
+                    item.status === "Belum Diambil"
+                      ? "bg-red-500 hover:bg-red-600 text-white"
+                      : "bg-green-500 hover:bg-green-600 text-white"
+                  }`}
+                >
+                  {item.status === "Belum Diambil" ? "Mark as Taken" : "Mark as Not Taken"}
+                </button>
+                <input
+                  type="checkbox"
+                  className="ml-2"
+                  checked={selectedIds.includes(item.id)}
+                  onChange={() => handleCheckboxChange(item.id)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
